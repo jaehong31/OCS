@@ -2,7 +2,8 @@
 
 This repository is an official Pytorch implementation of [Online Coreset Selection for Rehearsal-based Continual Learning](https://openreview.net/forum?id=f9D-5WNG4Nv) (**ICLR 2022**)
 
-> Currently working on PyTorch version 
+<!-- > Currently working on PyTorch version  -->
+<img align="middle" width="700" src="https://github.com/jaehong31/OCS/blob/main/OCS_concept.png">
 
 ## Abstract
 
