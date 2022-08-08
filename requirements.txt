@@ -1,0 +1,15 @@
+comet-ml==3.2.12
+jax==0.2.3
+jaxlib==0.1.55
+matplotlib==3.3.2
+neural-tangents==0.3.4
+numpy==1.17.2
+pandas==0.25.1
+scikit-learn==0.23.2
+scipy==1.5.2
+seaborn==0.10.1
+tensorboard==1.15.0
+torch==1.7.1
+torchsummary==1.5.1
+torchvision==0.8.2
+tqdm==4.36.1
