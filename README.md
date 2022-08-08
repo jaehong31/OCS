@@ -43,7 +43,7 @@ $ python ocs_mixture.py
 ```
 
 ## Acknowledgment
-The code is build upon [imirzadeh/stable-continual-learning](https://github.com/imirzadeh/stable-continual-learning) and we also refer [zalanborsos/bilevel_coresets](https://github.com/zalanborsos/bilevel_coresets)
+The code is build upon [imirzadeh/stable-continual-learning](https://github.com/imirzadeh/stable-continual-learning) and we also refer [zalanborsos/bilevel_coresets](https://github.com/zalanborsos/bilevel_coresets).
 
 ## Citations
 ```
