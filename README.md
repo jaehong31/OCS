@@ -42,7 +42,8 @@ $ python ocs_cifar.py
 $ python ocs_mixture.py
 ```
 
-
+## Acknowledgment
+The code is build upon [imirzadeh/stable-continual-learning](https://github.com/imirzadeh/stable-continual-learning)
 
 ## Citations
 ```
