@@ -106,7 +106,6 @@ def select_coreset(loader, task, model, candidates, config, candidate_size=250, 
         num_per_label = [len((cand_target==(jj+offset)).nonzero()) for jj in range(config['n_classes'][task])]
         #print('num samples per label', num_per_label)
 
-        #num_examples_per_task = config['memory_size'] // task
         num_examples_per_task = config['n_classes'][task]
 
         if config['select_type'] in coreset_methods:
@@ -217,7 +216,7 @@ def train_ocs_single_step(model, optimizer, loader, task, step, config):
         ref_grads = copy.deepcopy(flatten_grads(model))
         optimizer.zero_grad()
 
-        data = data.to(DEVICE)#.view(-1, 784)
+        data = data.to(DEVICE)
         target = target.to(DEVICE)
         if is_rand_start:
             size = min(len(data), config['batch_size'])
@@ -271,7 +270,7 @@ def train_coreset_single_step(model, optimizer, loader, task, step, config):
         is_rand_start = True if ((step == 1) and (batch_idx < config['r2c_thr']) and config['is_r2c']) else False
 
         # Compute reference grads
-        data = data.to(DEVICE)#.view(-1, 784)
+        data = data.to(DEVICE)
         target = target.to(DEVICE)
         size = min(config['batch_size'],len(data))
         pick = torch.randperm(len(data))[:size]
@@ -321,7 +320,7 @@ def eval_single_epoch(net, loader, config):
             test_loss += criterion(output, target).item()*len(target)
             pred = output.data.max(1, keepdim=True)[1]
             correct += pred.eq(target.data.view_as(pred)).sum()
-            correct_bool = pred.eq(target.data.view_as(pred))#pred == target.data.view_as(pred)
+            correct_bool = pred.eq(target.data.view_as(pred))
     test_loss /= count
     correct = correct.to('cpu')
     avg_acc = 100.0 * float(correct.numpy()) / count
@@ -330,14 +329,12 @@ def eval_single_epoch(net, loader, config):
 
 def train_task_sequentially(task, train_loader, config, summary=None):
     EXP_DIR = config['exp_dir']
-    #current_lr = max(config['lr_lowerbound'], config['seq_lr'] * (config['lr_decay'])**(task-1))
     current_lr = config['seq_lr'] * (config['lr_decay'])**(task-1)
     prev_model_name = 'init' if task == 1 else 't_{}_seq'.format(str(task-1))
     prev_model_path = '{}/{}.pth'.format(EXP_DIR, prev_model_name)
     model = load_model(prev_model_path).to(DEVICE)
     optimizer = torch.optim.SGD(model.parameters(), lr=current_lr, momentum=config['momentum'])
 
-    #print('n_minibatch', len(train_loader['sequential'][task]['train']))
     config['n_substeps'] = int(config['seq_epochs'] * (config['stream_size'] / config['batch_size']))
     for _step in range(1, config['n_substeps']+1):
         if config['coreset_base'] and task > 1:
@@ -347,7 +344,5 @@ def train_task_sequentially(task, train_loader, config, summary=None):
         else:
             model = train_ocs_single_step(model, optimizer, train_loader, task, _step, config)
         metrics = eval_single_epoch(model, train_loader['sequential'][task]['val'], config)
-        #print('Epoch {} >> (per-task accuracy): {}'.format(epoch, np.mean(metrics['accuracy'])))
         print('Epoch {} >> (per-task accuracy): {}'.format(_step/config['n_substeps'], np.mean(metrics['accuracy'])))
-        #print('Epoch {} >> (class accuracy): {}'.format(_step/config['n_substeps'], metrics['per_class_accuracy']))
     return model

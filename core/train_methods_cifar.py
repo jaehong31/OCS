@@ -171,7 +171,7 @@ def update_coreset(loader, task, model, task_id, config):
 
             selected = classwise_fair_selection(task, tid_targets, pick, num_per_label, config)
         _nn = [len((tid_targets[selected]==(jj+config['n_classes']*(tid-1))).nonzero()) for jj in range(config['n_classes'])]
-        #print('tid:%d, after update_coreset, num samples per label'%tid, _nn)
+        
         loader['coreset'][tid]['train'].data = copy.deepcopy(loader['coreset'][tid]['train'].data[selected])
         loader['coreset'][tid]['train'].targets = copy.deepcopy(loader['coreset'][tid]['train'].targets[selected])
 
@@ -185,7 +185,7 @@ def train_single_step(model, optimizer, loader, task, step, config):
     candidates_indices=[]
     for batch_idx, (data, target, task_id) in enumerate(loader['sequential'][task]['train']):
         model.train()
-        data = data.to(DEVICE)#.view(-1, 784)
+        data = data.to(DEVICE)
         target = target.to(DEVICE)
         is_rand_start = True if ((step == 1) and (batch_idx < config['r2c_iter']) and config['is_r2c']) else False
         is_ocspick = True if (config['ocspick'] and len(data) > config['batch_size']) else False
@@ -250,7 +250,7 @@ def train_ocs_single_step(model, optimizer, loader, task, step, config):
         ref_grads = copy.deepcopy(flatten_grads(model))
         optimizer.zero_grad()
 
-        data = data.to(DEVICE)#.view(-1, 784)
+        data = data.to(DEVICE)
         target = target.to(DEVICE)
         if is_rand_start:
             size = min(len(data), config['batch_size'])
@@ -306,7 +306,7 @@ def train_coreset_single_step(model, optimizer, loader, task, step, config):
         optimizer.zero_grad()
         is_rand_start = True if ((step == 1) and (batch_idx < config['r2c_iter']) and config['is_r2c']) else False
 
-        data = data.to(DEVICE)#.view(-1, 784)
+        data = data.to(DEVICE)
         target = target.to(DEVICE)
         size = min(config['batch_size'],len(data))
         pick = torch.randperm(len(data))[:size]
@@ -354,8 +354,8 @@ def eval_single_epoch(net, loader, config):
             test_loss += criterion(output, target).item()*len(target)
             pred = output.data.max(1, keepdim=True)[1]
             correct += pred.eq(target.data.view_as(pred)).sum()
-            correct_bool = pred.eq(target.data.view_as(pred))#pred == target.data.view_as(pred)
-            #correct += correct_bool.sum()
+            correct_bool = pred.eq(target.data.view_as(pred))
+            
             for cid in range(config['n_classes']):
                 cid_index = torch.where(target==(cid+(task_id-1)*config['n_classes']), torch.ones_like(target), torch.zeros_like(target))
                 class_correct[cid] += (cid_index.data.view_as(correct_bool) * correct_bool).sum().item()
@@ -364,7 +364,6 @@ def eval_single_epoch(net, loader, config):
     correct = correct.to('cpu')
     avg_acc = 100.0 * float(correct.numpy()) / count
 
-    #if 'imbal' in config['dataset']:
     pc_avg_acc = [np.round(a/(b+1e-10), 4) for a,b in zip(class_correct, class_total)]
     return {'accuracy': avg_acc, 'per_class_accuracy':pc_avg_acc, 'loss': test_loss}
 
@@ -376,7 +375,6 @@ def train_task_sequentially(task, train_loader, config, summary=None):
     model = load_model(prev_model_path).to(DEVICE)
     optimizer = torch.optim.SGD(model.parameters(), lr=current_lr, momentum=config['momentum'])
 
-    #print('n_minibatch', len(train_loader['sequential'][task]['train']))
     config['n_substeps'] = int(config['seq_epochs'] * (config['stream_size'] / config['batch_size']))
     for _step in range(1, config['n_substeps']+1):
         if config['coreset_base'] and task > 1:

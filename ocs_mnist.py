@@ -45,7 +45,7 @@ if 'rot-mnist' in DATASET:
 import datetime
 now = datetime.datetime.now()
 Thistime = now.strftime('%Y-%m-%d-%H-%M-%S')
-print(Thistime)       # 2018-07-28 12:11:32
+print(Thistime)
 
 config['exp_name'] = Thistime+'-'+config['dataset']+config['exp_name']+'_seqlr'+('%s'%config['seq_lr']).replace('.','p')+'_seqep'+'%s'%config['seq_epochs']+'_seqbs'+'%s'%config['stream_size']
 

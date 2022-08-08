@@ -11,7 +11,8 @@ from core.utils import save_np_arrays, setup_experiment, log_comet_metric, get_r
 from core.utils import save_task_model_by_policy, load_task_model_by_policy, flatten_params
 from core.utils import assign_weights, get_norm_distance, ContinualMeter
 
-DATASET = 'imb-cifar'
+# DATASET = 'cifar' or 'imb-cifar'
+DATASET = 'cifar'
 HIDDENS = 256
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 TRIAL_ID =  os.environ.get('NNI_TRIAL_JOB_ID', get_random_string(5))
@@ -47,7 +48,7 @@ elif 'cifar' in DATASET:
 import datetime
 now = datetime.datetime.now()
 Thistime = now.strftime('%Y-%m-%d-%H-%M-%S')
-print(Thistime)       # 2018-07-28 12:11:32
+print(Thistime)
 
 config['exp_name'] = Thistime+'-'+config['dataset']+config['exp_name']+'_seqlr'+('%s'%config['seq_lr']).replace('.','p')+'_seqep'+'%s'%config['seq_epochs']+'_seqbs'+'%s'%config['stream_size']
 

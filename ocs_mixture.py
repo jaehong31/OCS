@@ -11,6 +11,7 @@ from core.utils import save_np_arrays, setup_experiment, log_comet_metric, get_r
 from core.utils import save_task_model_by_policy, load_task_model_by_policy, flatten_params
 from core.utils import assign_weights, get_norm_distance, ContinualMeter
 
+# DATASET = 'mixture' or 'imb-mixture'
 DATASET = 'mixture' # Change dataset to imb-mixture for Imbalanced multiple datasets and ref_hyp to 1.0
 HIDDENS = 256
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -47,7 +48,7 @@ elif 'mixture' in DATASET:
 import datetime
 now = datetime.datetime.now()
 Thistime = now.strftime('%Y-%m-%d-%H-%M-%S')
-print(Thistime)       # 2018-07-28 12:11:32
+print(Thistime)
 
 config['exp_name'] = Thistime+'-'+config['dataset']+config['exp_name']+'_seqlr'+('%s'%config['seq_lr']).replace('.','p')+'_seqep'+'%s'%config['seq_epochs']+'_seqbs'+'%s'%config['stream_size']
 

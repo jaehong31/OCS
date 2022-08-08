@@ -14,19 +14,16 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 # PER_TASK_ROATATION = 9
-"""
-pixel_permutation = [torch.randperm(28*28) for _ in range(20)]
-"""
+
 permute_map = {k:np.random.RandomState().permutation(784) for k in range(2, 51)}
 permute_map[1] = np.array(range(784))
 
 class Coreset(torch.utils.data.Dataset):
-    def __init__(self, set_size, input_shape=[784]):#, task_id=None):
+    def __init__(self, set_size, input_shape=[784]):
         data_shape = [set_size]+input_shape
 
         self.data = torch.zeros(data_shape)
         self.targets = torch.ones((set_size))*-1
-        #self.task_id = task_id
 
     def __len__(self):
         return len(self.data)
@@ -117,8 +114,6 @@ def get_rotated_mnist(task_id, batch_size, per_task_rotation):
     return train_loader, test_loader
 
 def get_subset_rotated_mnist(task_id, batch_size, num_examples, per_task_rotation):
-    # per_task_rotation = PER_TASK_ROATATION
-
     trains = []
     tests = []
     for i in [task_id]:
@@ -136,7 +131,6 @@ def get_subset_rotated_mnist(task_id, batch_size, num_examples, per_task_rotatio
     train_datasets = ConcatDataset(trains)
     test_datasets = ConcatDataset(tests)
 
-    # num_examples = num_examples_per_task * num_tasks
     sampler = torch.utils.data.RandomSampler(train_datasets, replacement=True, num_samples=num_examples)
 
     train_loader = torch.utils.data.DataLoader(train_datasets,  batch_size=batch_size, sampler=sampler, shuffle=False, num_workers=0, pin_memory=True)
@@ -156,8 +150,6 @@ def get_multitask_rotated_mnist(num_tasks, batch_size, num_examples, per_task_ro
         tests += test_loader
         all_mtl_data[task]['train'] = random.sample(trains[:], len(trains))
         all_mtl_data[task]['val'] = tests[:]
-
-        #print('task %d:  %s'%(task, [aa[0].shape for aa in all_mtl_data[task]['train']]))
     return all_mtl_data
 
 
@@ -194,7 +186,6 @@ def get_subset_permuted_mnist(task_id, batch_size, num_examples):
     train_datasets = ConcatDataset(trains)
     test_datasets = ConcatDataset(tests)
 
-    # num_examples = num_examples_per_task * num_tasks
     sampler = torch.utils.data.RandomSampler(train_datasets, replacement=True, num_samples=num_examples)
 
     train_loader = torch.utils.data.DataLoader(train_datasets,  batch_size=batch_size, sampler=sampler, shuffle=False, num_workers=8, pin_memory=True)
@@ -256,11 +247,7 @@ def get_subset_split_cifar100(task_id, batch_size, cifar_train, num_examples):
     end_class = task_id * 5
 
     per_class_examples = num_examples//5
-
     targets_train = torch.tensor(cifar_train.targets)
-
-    # target_train_idx = ((targets_train >= start_class) & (targets_train < end_class))
-    # train_dataset = torch.utils.data.dataset.Subset(cifar_train, np.where(target_train_idx==1)[0])
 
     trains = []
     for class_number in range(start_class, end_class):
@@ -315,7 +302,6 @@ def get_imbalanced_rotated_mnist(task_id, batch_size, per_task_rotation):
     full_train_x = train_dataset.data
     full_train_y = train_dataset.targets
 
-    # [0,1,2,3,4,5,6,7,8,9]
     len_per_class = []
     idx_per_class = []
     imbalanced_idx = []
@@ -346,7 +332,6 @@ def get_imbalanced_rotated_mnist(task_id, batch_size, per_task_rotation):
     return train_loader, test_loader
 
 def get_subset_imbalanced_rotated_mnist(task_id, batch_size, num_examples, per_task_rotation):
-    # per_task_rotation = PER_TASK_ROATATION
 
     trains = []
     tests = []
@@ -362,7 +347,6 @@ def get_subset_imbalanced_rotated_mnist(task_id, batch_size, num_examples, per_t
         full_train_x = train_dataset.data
         full_train_y = train_dataset.targets
 
-        # [0,1,2,3,4,5,6,7,8,9]
         len_per_class = []
         idx_per_class = []
         imbalanced_idx = []
@@ -390,7 +374,6 @@ def get_subset_imbalanced_rotated_mnist(task_id, batch_size, num_examples, per_t
     train_datasets = ConcatDataset(trains)
     test_datasets = ConcatDataset(tests)
 
-    # num_examples = num_examples_per_task * num_tasks
     sampler = torch.utils.data.RandomSampler(train_datasets, replacement=True, num_samples=num_examples)
     train_loader = torch.utils.data.DataLoader(train_datasets,  batch_size=batch_size, sampler=sampler, shuffle=False, num_workers=0, pin_memory=True)
     test_loader = torch.utils.data.DataLoader(test_datasets,  batch_size=256, shuffle=True, num_workers=0, pin_memory=True)
@@ -410,7 +393,6 @@ def get_multitask_imbalanced_rotated_mnist(num_tasks, batch_size, num_examples, 
         all_mtl_data[task]['train'] = random.sample(trains[:], len(trains))
         all_mtl_data[task]['val'] = tests[:]
 
-        #print('task %d:  %s'%(task, [aa[0].shape for aa in all_mtl_data[task]['train']]))
     return all_mtl_data
 
 
@@ -470,8 +452,6 @@ def get_imbalanced_split_cifar100(task_id, batch_size, cifar_train, cifar_test):
     return train_loader, test_loader
 
 def get_subset_imbalanced_split_cifar100(task_id, batch_size, cifar_train, num_examples):
-    # per_task_rotation = PER_TASK_ROATATION
-
     start_class = (task_id-1)*5
     end_class = task_id * 5
     n_class = 100
@@ -504,7 +484,6 @@ def get_balanced_noisy_rotated_mnist(task_id, batch_size, per_task_rotation):
     :param batch_size:
     :return:
     """
-    # per_task_rotation = PER_TASK_ROATATION
     print('Noisy Rotated MNIST')
     rotation_degree = (task_id - 1)*per_task_rotation
 
@@ -533,8 +512,6 @@ def get_balanced_noisy_rotated_mnist(task_id, batch_size, per_task_rotation):
 
 
 def get_subset_balanced_noisy_rotated_mnist(task_id, batch_size, num_examples, per_task_rotation):
-    # per_task_rotation = PER_TASK_ROATATION
-
     trains = []
     tests = []
     for i in [task_id]:
@@ -557,7 +534,6 @@ def get_subset_balanced_noisy_rotated_mnist(task_id, batch_size, num_examples, p
     train_datasets = ConcatDataset(trains)
     test_datasets = ConcatDataset(tests)
 
-    # num_examples = num_examples_per_task * num_tasks
     sampler = torch.utils.data.RandomSampler(train_datasets, replacement=True, num_samples=num_examples)
 
     train_loader = torch.utils.data.DataLoader(train_datasets,  batch_size=batch_size, sampler=sampler, shuffle=False, num_workers=0, pin_memory=True)
@@ -575,7 +551,6 @@ def get_imbalanced_rotated_mnist(task_id, batch_size, per_task_rotation):
     :param batch_size:
     :return:
     """
-    # per_task_rotation = PER_TASK_ROATATION
     rotation_degree = (task_id - 1)*per_task_rotation
 
     train_transforms = torchvision.transforms.Compose([
@@ -593,7 +568,6 @@ def get_imbalanced_rotated_mnist(task_id, batch_size, per_task_rotation):
     full_train_x = train_dataset.data
     full_train_y = train_dataset.targets
 
-    # [0,1,2,3,4,5,6,7,8,9]
     len_per_class = []
     idx_per_class = []
     imbalanced_idx = []
@@ -624,8 +598,6 @@ def get_imbalanced_rotated_mnist(task_id, batch_size, per_task_rotation):
     return train_loader, test_loader
 
 def get_subset_imbalanced_rotated_mnist(task_id, batch_size, num_examples, per_task_rotation):
-    # per_task_rotation = PER_TASK_ROATATION
-
     trains = []
     tests = []
     for i in [task_id]:
@@ -645,7 +617,6 @@ def get_subset_imbalanced_rotated_mnist(task_id, batch_size, num_examples, per_t
         full_train_x = train_dataset.data
         full_train_y = test_dataset.targets
 
-        # [0,1,2,3,4,5,6,7,8,9]
         len_per_class = []
         idx_per_class = []
         imbalanced_idx = []
@@ -673,7 +644,6 @@ def get_subset_imbalanced_rotated_mnist(task_id, batch_size, num_examples, per_t
     train_datasets = ConcatDataset(trains)
     test_datasets = ConcatDataset(tests)
 
-    # num_examples = num_examples_per_task * num_tasks
     sampler = torch.utils.data.RandomSampler(train_datasets, replacement=True, num_samples=num_examples)
     train_loader = torch.utils.data.DataLoader(train_datasets,  batch_size=batch_size, sampler=sampler, shuffle=False, num_workers=0, pin_memory=True)
     test_loader = torch.utils.data.DataLoader(test_datasets,  batch_size=256, shuffle=True, num_workers=0, pin_memory=True)

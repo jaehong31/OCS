@@ -215,7 +215,7 @@ def train_single_step(model, optimizer, loader, task, step, config):
     candidates_indices=[]
     for batch_idx, (data, target, task_id) in enumerate(loader['sequential'][task]['train']):
         model.train()
-        data = data.to(DEVICE)#.view(-1, 784)
+        data = data.to(DEVICE)
         target = target.to(DEVICE)
         optimizer.zero_grad()
         is_rand_start = True if ((step == 1) and (batch_idx < config['r2c_iter']) and config['is_r2c']) else False
@@ -412,7 +412,7 @@ def eval_single_epoch(net, loader, config):
             test_loss += criterion(output, target).item()*len(target)
             pred = output.data.max(1, keepdim=True)[1]
             correct += pred.eq(target.data.view_as(pred)).sum()
-            correct_bool = pred.eq(target.data.view_as(pred))#pred == target.data.view_as(pred)
+            correct_bool = pred.eq(target.data.view_as(pred))
             for cid in range(10):
                 cid_index = torch.where(target==cid, torch.ones_like(target), torch.zeros_like(target))
                 class_correct[cid] += (cid_index.data.view_as(correct_bool) * correct_bool).sum().item()

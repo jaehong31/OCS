@@ -6,7 +6,6 @@ import torch.nn as nn
 import numpy as np
 from .utils import DEVICE, load_model, assign_weights, flatten_params
 from .data_utils import Coreset, fast_mnist_loader, fast_cifar_loader
-# from .train_methods import eval_single_epoch
 
 def get_line_loss(start_w, w, loader, config, is_prev=False, task=0):
     interpolation  = None
@@ -22,7 +21,6 @@ def get_line_loss(start_w, w, loader, config, is_prev=False, task=0):
     accum_grad = None
     criterion = nn.CrossEntropyLoss().to(DEVICE)
 
-    #print("DEBUG >> LMC interpolation is >> {}".format(interpolation))
     if interpolation == 'linear':
         for t in np.arange(0.0, 1.01, 1.0/float(config['lmc_line_samples'])):
             grads = []
@@ -50,7 +48,7 @@ def get_line_loss(start_w, w, loader, config, is_prev=False, task=0):
                 cur_weight = start_w + (w - start_w) * t
                 m = assign_weights(m, cur_weight).to(DEVICE)
                 m.eval()
-                data = data.to(DEVICE)#.view(-1, 784)
+                data = data.to(DEVICE)
                 target = target.to(DEVICE)
                 output = m(data, task_id)
                 current_loss = criterion(output, target)
@@ -73,12 +71,11 @@ def get_clf_loss(net, loader):
     test_loss = 0
     count = 0
     for data, target, task_id in loader:
-            #print('shapes: %s, %s'%(data.shape, target.shape))
             count += len(target)
-            data = data.to(DEVICE)#.view(-1, 784)
+            data = data.to(DEVICE)
             target = target.to(DEVICE)
             output = net(data, task_id)
-            test_loss += criterion(output, target)#*len(target)
+            test_loss += criterion(output, target)
     test_loss /= count
     return test_loss
 
@@ -112,15 +109,14 @@ def get_rcp_clf_loss(net, dataset, config, task):
     net.eval()
     test_loss = 0
     count = 0
-    #loader = reconstruct_coreset_loader(config, dataset, task)
     loader = reconstruct_coreset_loader2(config, dataset, task)
 
     for data, target, task_id in loader:
             count += len(target)
-            data = data.to(DEVICE)#.view(-1, 784)
+            data = data.to(DEVICE)
             target = target.to(DEVICE)
             output = net(data, task_id)
-            test_loss += criterion(output, target.long())#*len(target)
+            test_loss += criterion(output, target.long())
     test_loss /= count
     return test_loss
 
@@ -129,14 +125,12 @@ def get_coreset_loss(net, iterloader, config):
     net.train()
     coreset_loss = 0
     count = 0
-    data, target, task_id = iterloader #.__next__()
-    #print('### %s'%target)
-    #loader = reconstruct_coreset_loader(config, dataset, task)
+    data, target, task_id = iterloader
     count += len(target)
-    data = data.to(DEVICE)#.view(-1, 784)
+    data = data.to(DEVICE)
     target = target.to(DEVICE)
     output = net(data, task_id)
-    coreset_loss += criterion(output, target.long())#*len(target)
+    coreset_loss += criterion(output, target.long())
     coreset_loss /= count
     return coreset_loss
 
