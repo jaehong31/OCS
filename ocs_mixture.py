@@ -28,20 +28,20 @@ elif 'cifar' in DATASET:
     config = {}
 
 elif 'mixture' in DATASET:
-    config = {'exp_name': '-rcp',
-              # ---COMMON----
-              'num_tasks': 5, 'trial': TRIAL_ID, 'exp_dir': EXP_DIR,\
-              'memory_size': 83, 'dataset': DATASET, 'device': DEVICE, 'momentum': 0.8,\
-              'mlp_hiddens': HIDDENS, 'dropout': 0.1, 'lr_decay': 0.85,\
-              'n_classes': [0, 10, 10, 10, 43, 10],\
+    config = {'exp_name': '-ocs',
+        # ---COMMON----
+        'num_tasks': 5, 'trial': TRIAL_ID, 'exp_dir': EXP_DIR,\
+        'memory_size': 83, 'dataset': DATASET, 'device': DEVICE, 'momentum': 0.8,\
+        'mlp_hiddens': HIDDENS, 'dropout': 0.1, 'lr_decay': 0.85,\
+        'n_classes': [0, 10, 10, 10, 43, 10],\
 
-               # ----Seq Model-----
-               'seq_lr': 0.1, 'stream_size': 20, 'seq_epochs': 1,\
+        # ----Seq Model-----
+        'seq_lr': 0.1, 'stream_size': 20, 'seq_epochs': 1,\
 
-               # ------OCS models------
-               'ocspick': True, 'batch_size': 10, 'is_r2c': False, 'r2c_iter': 100,\
-               'tau': 1000.0, 'ref_hyp': .1, 'select_type': 'ocs_select', 'coreset_base': False,
-               }
+        # ------OCS models------
+        'ocspick': True, 'batch_size': 10, 'is_r2c': True, 'r2c_iter': 100,\
+        'tau': 1000.0, 'ref_hyp': .1, 'select_type': 'ocs_select', 'coreset_base': False,
+        }
     if 'imb-mixture' in DATASET:
         config['ref_hyp'] = 1.
 
